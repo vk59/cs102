@@ -17,7 +17,7 @@ def encrypt_caesar(plaintext: str) -> str:
         if (letter >= ord("A") & letter <= ord("Z") | letter >= ord("a") & letter <= ord("z")): 
             # check the letter and form new 'ord' of letter
             letter = letter + shift
-        ciphertext += letter # add the new letter to encrypt word
+        ciphertext += chr(letter) # add the new letter to encrypt word
     return ciphertext
 
 
