@@ -1,3 +1,5 @@
+import random
+
 def is_prime(n: int) -> bool:
     """
     >>> is_prime(2)
@@ -15,6 +17,22 @@ def is_prime(n: int) -> bool:
             flag = False
         delit+=1
     return flag
+
+def gcd(a: int, b: int) -> int:
+    """
+    >>> gcd(12, 15)
+    3
+    >>> gcd(3, 7)
+    1
+    """
+    # EVKLID :
+    if (a<b):
+        a, b = b, a
+    while (b != 0):
+        r = a % b
+        a = b
+        b = r
+    return a
 
 def generate_keypair(p: int, q: int) -> Tuple[Tuple[int, int], Tuple[int, int]]:
     if not (is_prime(p) and is_prime(q)):
