@@ -7,5 +7,11 @@ def is_prime(n: int) -> bool:
     >>> is_prime(8)
     False
     """
-    # PUT YOUR CODE HERE
-    pass
+    # CODE:
+    delit = 2 # делитель
+    flag = True # if the number is prime, then flag == true
+    while (delit*delit < n) & (flag):
+        if n % delit == 0:
+            flag = False
+        delit+=1
+    return flag
