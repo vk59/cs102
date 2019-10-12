@@ -15,8 +15,10 @@ def is_prime(n: int) -> bool:
     divider = 2
     # if the number is prime, then flag == true
     flag = True
+    if n == 0 | n == 1:
+        flag = False
     while (divider*divider < n) & (flag):
-        if n % divivder == 0:
+        if n % divider == 0:
             flag = False
         divider += 1
     return flag
