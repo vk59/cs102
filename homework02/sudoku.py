@@ -100,12 +100,31 @@ def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    pass
+    n = len(grid)
+    # if flag == False, we haven't found empty position yet
+    flag = False
+    i = 0
+    while i < n and not(flag):
+        j = 0
+        while j < n and not(flag):
+            if grid[i][j] == '.':
+                pos = (i, j)
+                flag = True
+            j += 1
+        i += 1
+    if flag:
+        return pos
+    # if there is not an empty position then function will return (-1, -1)
+    else:
+        return (-1, -1)
+                
+    
+    
 
 
 def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str]:
     """ Вернуть множество возможных значения для указанной позиции
-    >>> grid = read_sudoku('puzzle1.txt')
+    >>> grid = read_sudoku('homework02/puzzle1.txt')
     >>> values = find_possible_values(grid, (0,2))
     >>> values == {'1', '2', '4'}
     True
@@ -113,7 +132,15 @@ def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str
     >>> values == {'2', '5', '9'}
     True
     """
-    pass
+    all_numbers = set('123456789.')
+    row_values = set(get_row(grid, pos))
+    col_values = set(get_col(grid, pos))
+    block_values = set(get_block(grid, pos))
+    values = row_values.union(col_values)
+    values = values.union(block_values)
+    possible_values = all_numbers.difference(values)
+    return possible_values
+
 
 
 def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
