@@ -32,7 +32,8 @@ def display(grid: List[List[str]]) -> None:
     width = 2
     line = '+'.join(['-' * (width * 3)] * 3)
     for row in range(9):
-        print(''.join(grid[row][col].center(width) + ('|' if str(col) in '25' else '') for col in range(9)))
+        print(''.join(grid[row][col].center(width) +
+            ('|' if str(col) in '25' else '') for col in range(9)))
         if str(row) in '25':
             print(line)
     print()
@@ -89,7 +90,7 @@ def get_block(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     q = col // 3
     values_of_block = []
     for i in range(3 * p, 3 * (p + 1)):
-        for j in range (3 * q, 3 * (q + 1)):
+        for j in range(3 * q, 3 * (q + 1)):
             values_of_block.append(grid[i][j])
     return values_of_block
 
@@ -120,12 +121,10 @@ def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
     # if there is not an empty position then function will return (-1, -1)
     else:
         return (-1, -1)
-                
-    
-    
 
 
-def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str]:
+def find_possible_values(grid: List[List[str]],
+                        pos: Tuple[int, int]) -> Set[str]:
     """ Вернуть множество возможных значения для указанной позиции
     >>> grid = read_sudoku('homework02/puzzle1.txt')
     >>> values = find_possible_values(grid, (0,2))
@@ -145,7 +144,6 @@ def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str
     return possible_values
 
 
-
 def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
     """ Решение пазла, заданного в grid """
     """ Как решать Судоку?
@@ -162,14 +160,13 @@ def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
     row, col = pos
     if pos == (-1, -1):
         return grid
-    for value in find_possible_values(grid, pos):    
+    for value in find_possible_values(grid, pos):
             grid[row][col] = value
             result = solve(grid)
             if result:
                 return result
     grid[row][col] = "."
     return None
-
 
 
 def check_solution(solution: List[List[str]]) -> bool:
@@ -188,8 +185,6 @@ def check_solution(solution: List[List[str]]) -> bool:
             if values_of_block != set('123456789'):
                 return False
     return True
-
-
 
 
 def generate_sudoku(N: int) -> List[List[str]]:
@@ -231,7 +226,8 @@ def generate_sudoku(N: int) -> List[List[str]]:
 
 
 if __name__ == '__main__':
-    for fname in ['homework02/puzzle1.txt', 'homework02/puzzle2.txt', 'homework02/puzzle3.txt']:
+    for fname in ['homework02/puzzle1.txt', 'homework02/puzzle2.txt',
+       'homework02/puzzle3.txt']:
         grid = read_sudoku(fname)
         display(grid)
         solution = solve(grid)
