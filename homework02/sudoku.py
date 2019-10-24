@@ -1,4 +1,7 @@
 from typing import Tuple, List, Set, Optional
+import random
+import time
+import threading
 
 
 def group(values: List[str], n: int) -> List[List[str]]:
@@ -151,17 +154,42 @@ def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
         3. Для каждого возможного значения:
             3.1. Поместить это значение на эту позицию
             3.2. Продолжить решать оставшуюся часть пазла
-    >>> grid = read_sudoku('puzzle1.txt')
+    >>> grid = read_sudoku('homework02/puzzle1.txt')
     >>> solve(grid)
     [['5', '3', '4', '6', '7', '8', '9', '1', '2'], ['6', '7', '2', '1', '9', '5', '3', '4', '8'], ['1', '9', '8', '3', '4', '2', '5', '6', '7'], ['8', '5', '9', '7', '6', '1', '4', '2', '3'], ['4', '2', '6', '8', '5', '3', '7', '9', '1'], ['7', '1', '3', '9', '2', '4', '8', '5', '6'], ['9', '6', '1', '5', '3', '7', '2', '8', '4'], ['2', '8', '7', '4', '1', '9', '6', '3', '5'], ['3', '4', '5', '2', '8', '6', '1', '7', '9']]
     """
-    pass
+    pos = find_empty_positions(grid)
+    row, col = pos
+    if pos == (-1, -1):
+        return grid
+    for value in find_possible_values(grid, pos):    
+            grid[row][col] = value
+            result = solve(grid)
+            if result:
+                return result
+    grid[row][col] = "."
+    return None
+
 
 
 def check_solution(solution: List[List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
-    # TODO: Add doctests with bad puzzles
-    pass
+    for col in range(9):
+        values_of_col = set(get_col(solution, (0, col)))
+        if values_of_col != set('123456789'):
+            return False
+    for row in range(9):
+        values_of_row = set(get_row(solution, (row, 0)))
+        if values_of_row != set('123456789'):
+            return False
+    for row_blk in (0, 3, 6):
+        for col_blk in (0, 3, 6):
+            values_of_block = set(get_block(solution, (row_blk, col_blk)))
+            if values_of_block != set('123456789'):
+                return False
+    return True
+
+
 
 
 def generate_sudoku(N: int) -> List[List[str]]:
@@ -185,11 +213,25 @@ def generate_sudoku(N: int) -> List[List[str]]:
     >>> check_solution(solution)
     True
     """
-    pass
+    empty = []
+    for i in range(9):
+        empty.append([])
+        for _ in range(9):
+            empty[i].append('.')
+    grid = solve(empty)
+    # 'k' is counter
+    k = 0
+    while k < N:
+        row = random.randint(0, 8)
+        col = random.randint(0, 8)
+        if grid[row][col] != '.':
+            grid[row][col] = '.'
+            k += 1
+    return grid
 
 
 if __name__ == '__main__':
-    for fname in ['puzzle1.txt', 'puzzle2.txt', 'puzzle3.txt']:
+    for fname in ['homework02/puzzle1.txt', 'homework02/puzzle2.txt', 'homework02/puzzle3.txt']:
         grid = read_sudoku(fname)
         display(grid)
         solution = solve(grid)
