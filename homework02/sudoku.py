@@ -49,12 +49,8 @@ def get_row(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     ['.', '8', '9']
     """
     # 'n' is array value
-    n = len(grid)
     row, col = pos
-    values_of_row = []
-    for i in range(n):
-        values_of_row.append(grid[row][i])
-    return values_of_row
+    return grid[row]
 
 
 def get_col(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
@@ -105,22 +101,12 @@ def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
     (2, 0)
     """
     n = len(grid)
-    # if flag == False, we haven't found empty position yet
-    flag = False
-    i = 0
-    while i < n and not(flag):
-        j = 0
-        while j < n and not(flag):
+    for i in range(n):
+        for j in range(n):
             if grid[i][j] == '.':
                 pos = (i, j)
-                flag = True
-            j += 1
-        i += 1
-    if flag:
-        return pos
-    # if there is not an empty position then function will return (-1, -1)
-    else:
-        return (-1, -1)
+                return pos
+    return None
 
 
 def find_possible_values(grid: List[List[str]],
@@ -134,7 +120,7 @@ def find_possible_values(grid: List[List[str]],
     >>> values == {'2', '5', '9'}
     True
     """
-    all_numbers = set('123456789.')
+    all_numbers = set('123456789')
     row_values = set(get_row(grid, pos))
     col_values = set(get_col(grid, pos))
     block_values = set(get_block(grid, pos))
@@ -158,13 +144,13 @@ def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
     """
     pos = find_empty_positions(grid)
     row, col = pos
-    if pos == (-1, -1):
+    if not pos:
         return grid
     for value in find_possible_values(grid, pos):
-            grid[row][col] = value
-            result = solve(grid)
-            if result:
-                return result
+        grid[row][col] = value
+        result = solve(grid)
+        if result:
+            return result
     grid[row][col] = "."
     return None
 
@@ -219,10 +205,10 @@ def generate_sudoku(N: int) -> List[List[str]]:
     while k < N:
         row = random.randint(0, 8)
         col = random.randint(0, 8)
-        if grid[row][col] != '.':
-            grid[row][col] = '.'
+        if grid[row][col] != '.': # type: ignore
+            grid[row][col] = '.' # type: ignore
             k += 1
-    return grid
+    return grid # type: ignore
 
 
 if __name__ == '__main__':
