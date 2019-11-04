@@ -72,7 +72,7 @@ def get_col(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
 
 def get_block(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     """ Возвращает все значения из квадрата, в который попадает позиция pos
-    >>> grid = read_sudoku('homework02/puzzle1.txt')
+    >>> grid = read_sudoku('puzzle1.txt')
     >>> get_block(grid, (0, 1))
     ['5', '3', '.', '6', '.', '.', '.', '9', '8']
     >>> get_block(grid, (4, 7))
@@ -112,7 +112,7 @@ def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
 def find_possible_values(grid: List[List[str]],
                         pos: Tuple[int, int]) -> Set[str]:
     """ Вернуть множество возможных значения для указанной позиции
-    >>> grid = read_sudoku('homework02/puzzle1.txt')
+    >>> grid = read_sudoku('puzzle1.txt')
     >>> values = find_possible_values(grid, (0,2))
     >>> values == {'1', '2', '4'}
     True
@@ -212,8 +212,8 @@ def generate_sudoku(N: int) -> List[List[str]]:
 
 
 if __name__ == '__main__':
-    for fname in ['homework02/puzzle1.txt', 'homework02/puzzle2.txt',
-       'homework02/puzzle3.txt']:
+    for fname in ['puzzle1.txt', 'puzzle2.txt',
+       'puzzle3.txt']:
         grid = read_sudoku(fname)
         display(grid)
         solution = solve(grid)
