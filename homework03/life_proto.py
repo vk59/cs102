@@ -12,7 +12,7 @@ Grid = List[Cells]
 
 class GameOfLife:
 
-    def __init__(self, width: int=640, height: int=480, cell_size: int=10, speed: int=10) -> None:
+    def __init__(self, width: int=640, height: int=480, cell_size: int=10, speed: int=1) -> None:
         self.width = width
         self.height = height
         self.cell_size = cell_size
@@ -109,6 +109,7 @@ class GameOfLife:
             self.draw_lines()
             # Отрисовка списка клеток
             # Выполнение одного шага игры (обновление состояния ячеек)
+            self.get_next_generation()
             pygame.display.flip()
             clock.tick(self.speed)
         pygame.quit()
@@ -133,7 +134,13 @@ class GameOfLife:
         out : Cells
             Список соседних клеток.
         """
-        pass
+        self.Cells = []
+        row, col = cell
+        for i in range(max(0, row - 1), min(self.cell_width, row + 2)):
+            for j in range(max(0, col - 1), min(self.cell_height, col + 2)):
+                if i != row or j != col:
+                    self.Cells.append(self.grid[i][j])
+
 
     def get_next_generation(self) -> Grid:
         """
@@ -144,6 +151,18 @@ class GameOfLife:
         out : Grid
             Новое поколение клеток.
         """
-        pass
+        new_grid = self.grid
+        for i in range(self.cell_width):
+            for j in range(self.cell_height):
+                self.get_neighbours((i,j))
+                sum = 0
+                for k in range(len(self.Cells)):
+                    sum += self.Cells[k]
+                if sum < 2 or sum > 3:
+                    new_grid[i][j] = 0
+                elif sum == 3:
+                    new_grid[i][j] = 1
+        self.grid = new_grid
+
 
 GameOfLife().run()
