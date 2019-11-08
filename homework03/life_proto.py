@@ -50,14 +50,14 @@ class GameOfLife:
         """
         self.grid = []
         if not randomize:
-            for i in range(self.cell_height):
+            for i in range(self.cell_width):
                 self.grid.append([])
-                for j in range(self.cell_width):
+                for j in range(self.cell_height):
                     self.grid[i].append(0)
         else:
-            for i in range(self.cell_height):
+            for i in range(self.cell_width):
                 self.grid.append([])
-                for j in range(self.cell_width):
+                for j in range(self.cell_height):
                     self.grid[i].append(random.randint(0,1))
         return self.grid
 
@@ -76,13 +76,19 @@ class GameOfLife:
         """
         Отрисовка списка клеток с закрашиванием их в соответствующе цвета.
         """
-        for i in range(self.cell_height):
-            for j in range(self.cell_width):
+        for i in range(self.cell_width):
+            for j in range(self.cell_height):
                 if self.grid[i][j] == 0:
                     pygame.draw.rect(
                                 self.screen, 
                                 pygame.Color('white'), 
-                                (i, j, self.cell_size, self.cell_size))
+                                (i*self.cell_size, j*self.cell_size, self.cell_size, self.cell_size))
+                else:
+                    pygame.draw.rect(
+                                self.screen, 
+                                pygame.Color('green'), 
+                                (i*self.cell_size, j*self.cell_size, self.cell_size, self.cell_size))
+
 
 
     def run(self) -> None:
@@ -99,13 +105,14 @@ class GameOfLife:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     running = False
+            self.draw_grid()
             self.draw_lines()
             # Отрисовка списка клеток
             # Выполнение одного шага игры (обновление состояния ячеек)
-            self.draw_grid()
             pygame.display.flip()
             clock.tick(self.speed)
         pygame.quit()
+        return None
 
 
     def get_neighbours(self, cell: Cell) -> Cells:
