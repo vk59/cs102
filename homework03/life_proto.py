@@ -1,6 +1,7 @@
 import pygame
 import random
 
+from copy import deepcopy
 from pygame.locals import *
 from typing import List, Tuple
 
@@ -108,7 +109,7 @@ class GameOfLife:
             self.draw_lines()
             # Отрисовка списка клеток
             # Выполнение одного шага игры (обновление состояния ячеек)
-            self.get_next_generation()
+            self.grid = self.get_next_generation()
             pygame.display.flip()
             clock.tick(self.speed)
         pygame.quit()
@@ -133,12 +134,26 @@ class GameOfLife:
         out : Cells
             Список соседних клеток.
         """
-        self.Cells = []
+        '''
+        Cells = []
         row, col = cell
         for i in range(max(0, row - 1), min(self.cell_width, row + 2)):
             for j in range(max(0, col - 1), min(self.cell_height, col + 2)):
                 if i != row or j != col:
-                    self.Cells.append(self.grid[i][j])
+                    Cells.append(self.grid[i][j])
+        return Cells
+        '''
+        cells = []
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                x = cell[1] + i
+                y = cell[0] + j
+                if i == 0 and j == 0:
+                    continue
+                elif (x > -1 and x < self.cell_width and
+                      y > -1 and y < self.cell_height):
+                    cells.append(self.grid[y][x])
+        return cells
 
 
     def get_next_generation(self) -> Grid:
@@ -150,15 +165,19 @@ class GameOfLife:
         out : Grid
             Новое поколение клеток.
         """
-        new_grid = self.grid
-        for i in range(self.cell_width):
-            for j in range(self.cell_height):
-                self.get_neighbours((i,j))
-                sum = 0
-                for k in range(len(self.Cells)):
-                    sum += self.Cells[k]
-                if sum < 2 or sum > 3:
-                    new_grid[i][j] = 0
-                elif sum == 3:
+        new_grid = deepcopy(self.grid)
+        for i in range(self.cell_height):
+            for j in range(self.cell_width):
+                alive_neighbours = sum(self.get_neighbours((i,j)))
+                if alive_neighbours in (2, 3) and self.grid[i][j] == 1:
                     new_grid[i][j] = 1
-        self.grid = new_grid
+                elif alive_neighbours == 3 and self.grid[i][j] == 0:
+                    new_grid[i][j] = 1
+                else:
+                    new_grid[i][j] = 0
+        return new_grid
+
+
+if __name__ == '__main__':
+    game = GameOfLife(320, 240, 20, 1)
+    game.run()
