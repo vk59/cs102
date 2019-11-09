@@ -134,15 +134,6 @@ class GameOfLife:
         out : Cells
             Список соседних клеток.
         """
-        '''
-        Cells = []
-        row, col = cell
-        for i in range(max(0, row - 1), min(self.cell_width, row + 2)):
-            for j in range(max(0, col - 1), min(self.cell_height, col + 2)):
-                if i != row or j != col:
-                    Cells.append(self.grid[i][j])
-        return Cells
-        '''
         cells = []
         for i in range(-1, 2):
             for j in range(-1, 2):

@@ -30,18 +30,18 @@ class GameOfLife:
 
     def create_grid(self, randomize: bool=False) -> Grid:
         # Copy from previous assignment
-        self.grid = []
+        grid = []
         if not randomize:
             for i in range(self.rows):
-                self.grid.append([])
+                grid.append([])
                 for j in range(self.cols):
-                    self.grid[i].append(0)
+                    grid[i].append(0)
         else:
             for i in range(self.rows):
-                self.grid.append([])
+                grid.append([])
                 for j in range(self.cols):
-                    self.grid[i].append(random.randint(0,1))
-        return self.grid
+                    grid[i].append(random.randint(0,1))
+        return grid
 
     def get_neighbours(self, cell: Cell) -> Cells:
         # Copy from previous assignment
@@ -54,8 +54,8 @@ class GameOfLife:
 
     def get_next_generation(self) -> Grid:
         # Copy from previous assignment
-        new_grid = self.grid
-        self.prev_generation = self.grid
+        self.prev_generation = self.curr_generation
+        new_grid = self.curr_generation
         for i in range(self.rows):
             for j in range(self.cols):
                 self.get_neighbours((i,j))
@@ -79,13 +79,7 @@ class GameOfLife:
         """
         Не превысило ли текущее число поколений максимально допустимое.
         """
-        sum = 0
-        for i in range(self.rows):
-            for j in range(self.cols):
-                sum += self.grid[i][j]
-        if sum > self.max_generations:
-            return True
-        return False
+        return self.generations > self.max_generations
 
 
     @property
@@ -93,7 +87,7 @@ class GameOfLife:
         """
         Изменилось ли состояние клеток с предыдущего шага.
         """
-        return not (self.prev_generation == self.grid)
+        return not (self.prev_generation == self.curr_generation)
 
     @staticmethod
     def from_file(filename: pathlib.Path) -> 'GameOfLife':
@@ -101,12 +95,13 @@ class GameOfLife:
         Прочитать состояние клеток из указанного файла.
         """
         thisFile = open(filename)
-        self.grid = []
+        grid = []
         for i in range(self.rows):
-            self.grid.append([])
+            grid.append([])
             for j in range(self.cols):
-                self.grid[i].append(int(thisFile.read(1)))
+                grid[i].append(int(thisFile.read(1)))
         thisFile.close()
+        return grid
         
 
     def save(filename: pathlib.Path) -> None:
@@ -116,5 +111,6 @@ class GameOfLife:
         outFile = open(filename, 'w')
         for i in range(self.rows):
             for j in range(self.cols):
-                outFile.write(self.grid[i][j])
+                outFile.write(self.curr_generation[i][j])
+            outFile.write('\n')
         outFile.close()
