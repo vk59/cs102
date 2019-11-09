@@ -122,7 +122,7 @@ class TestGameOfLife(unittest.TestCase):
         for _ in range(max_generations-1):
             game.step()
         self.assertEqual(game.n_generation, max_generations)
-        self.assertTrue(game.is_max_generations_exceed)
+        self.assertTrue(game.is_max_generations_exceeded)
 
     def test_is_changing(self):
         game = GameOfLife((self.rows, self.cols))
