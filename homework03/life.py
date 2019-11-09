@@ -11,7 +11,7 @@ Grid = List[Cells]
 
 
 class GameOfLife:
-    
+
     def __init__(
         self,
         size: Tuple[int, int],
@@ -41,7 +41,7 @@ class GameOfLife:
             for i in range(self.rows):
                 grid.append([])
                 for j in range(self.cols):
-                    grid[i].append(random.randint(0,1))
+                    grid[i].append(random.randint(0, 1))
         return grid
 
     def get_neighbours(self, cell: Cell) -> Cells:
@@ -57,7 +57,6 @@ class GameOfLife:
                       col > -1 and col < self.cols):
                     cells.append(self.curr_generation[row][col])
         return cells
-
 
     def get_next_generation(self) -> Grid:
         # Copy from previous assignment
@@ -90,7 +89,6 @@ class GameOfLife:
         """
         return self.n_generation >= self.max_generations
 
-
     @property
     def is_changing(self) -> bool:
         """
@@ -121,7 +119,6 @@ class GameOfLife:
         game.curr_generation = grid
         thisFile.close()
         return game
-        
 
     def save(filename: pathlib.Path) -> None:
         """

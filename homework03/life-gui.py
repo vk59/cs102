@@ -7,7 +7,7 @@ from ui import UI
 
 class GUI(UI):
 
-    def __init__(self, life: GameOfLife, cell_size: int=10, speed: int=5) -> None:
+    def __init__(self, life: GameOfLife, cell_size: int=10, speed: int=5):
         super().__init__(life)
         self.cell_size = cell_size
         self.speed = speed
@@ -30,14 +30,16 @@ class GUI(UI):
             for j in range(self.life.cols):
                 if self.grid[i][j] == 0:
                     pygame.draw.rect(
-                            self.screen, 
+                            self.screen,
                             pygame.Color('white'), 
-                            (i*self.cell_size, j*self.cell_size, self.cell_size, self.cell_size))
+                            (i*self.cell_size, j*self.cell_size,
+                            self.cell_size, self.cell_size))
                 else:
                     pygame.draw.rect(
-                            self.screen, 
+                            self.screen,
                             pygame.Color('green'), 
-                            (i*self.cell_size, j*self.cell_size, self.cell_size, self.cell_size))
+                            (i*self.cell_size, j*self.cell_size,
+                            self.cell_size, self.cell_size))
 
     def change_status(self) -> None:
         x, y = pygame.mouse.get_pos()
