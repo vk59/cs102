@@ -90,7 +90,6 @@ class GameOfLife:
                                 (i*self.cell_size, j*self.cell_size, self.cell_size, self.cell_size))
 
 
-
     def run(self) -> None:
         """ Запустить игру """
         pygame.init()
@@ -163,6 +162,3 @@ class GameOfLife:
                 elif sum == 3:
                     new_grid[i][j] = 1
         self.grid = new_grid
-
-
-GameOfLife().run()
