@@ -1,6 +1,7 @@
 import pathlib
 import random
 
+from copy import deepcopy
 from typing import List, Optional, Tuple
 
 
@@ -45,34 +46,42 @@ class GameOfLife:
 
     def get_neighbours(self, cell: Cell) -> Cells:
         # Copy from previous assignment
-        self.Cells = []
-        row, col = cell
-        for i in range(max(0, row - 1), min(self.rows, row + 2)):
-            for j in range(max(0, col - 1), min(self.cols, col + 2)):
-                if i != row or j != col:
-                    self.Cells.append(self.grid[i][j])
+        cells = []
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                row = cell[0] + i
+                col = cell[1] + j
+                if i == 0 and j == 0:
+                    continue
+                elif (row > -1 and row < self.rows and
+                      col > -1 and col < self.cols):
+                    cells.append(self.curr_generation[row][col])
+        return cells
+
 
     def get_next_generation(self) -> Grid:
         # Copy from previous assignment
-        self.prev_generation = self.curr_generation
-        new_grid = self.curr_generation
-        for i in range(self.rows):
-            for j in range(self.cols):
-                self.get_neighbours((i,j))
-                sum = 0
-                for k in range(len(self.Cells)):
-                    sum += self.Cells[k]
-                if sum < 2 or sum > 3:
-                    new_grid[i][j] = 0
-                elif sum == 3:
-                    new_grid[i][j] = 1
-        self.grid = new_grid
+        new_grid = deepcopy(self.curr_generation)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                alive_neighbours = sum(self.get_neighbours((row, col)))
+                if (alive_neighbours in (2, 3) and
+                        self.curr_generation[row][col] == 1):
+                    new_grid[row][col] = 1
+                elif (alive_neighbours == 3 and
+                        self.curr_generation[row][col] == 0):
+                    new_grid[row][col] = 1
+                else:
+                    new_grid[row][col] = 0
+        return new_grid
 
     def step(self) -> None:
         """
         Выполнить один шаг игры.
         """
-        self.get_next_generation()
+        self.prev_generation = deepcopy(self.curr_generation)
+        self.curr_generation = self.get_next_generation()
+        self.generations += 1
 
     @property
     def is_max_generations_exceeded(self) -> bool:
@@ -94,23 +103,36 @@ class GameOfLife:
         """
         Прочитать состояние клеток из указанного файла.
         """
-        thisFile = open(filename)
-        grid = []
-        for i in range(self.rows):
-            grid.append([])
-            for j in range(self.cols):
-                grid[i].append(int(thisFile.read(1)))
+        with open(filename, 'r') as thisFile:
+            L = list(thisFile)
+            grid = []
+            for i in range(len(L)):
+                row = []
+                for char in L[i]:
+                    if char != '\n':
+                        row.append(int(char))
+                    else:
+                        break
+                grid.append(row)
+        rows = len(grid)
+        columns = len(grid[0])
+        size = (rows, columns)
+        game = GameOfLife(size, True)
+        game.curr_generation = grid
         thisFile.close()
-        return grid
+        return game
         
 
     def save(filename: pathlib.Path) -> None:
         """
         Сохранить текущее состояние клеток в указанный файл.
         """
-        outFile = open(filename, 'w')
-        for i in range(self.rows):
-            for j in range(self.cols):
-                outFile.write(self.curr_generation[i][j])
-            outFile.write('\n')
+        with open(filename, 'w') as outFile:
+            for i in range(self.rows):
+                for j in range(self.cols):
+                    outFile.write(self.curr_generation[i][j])
+                outFile.write('\n')
         outFile.close()
+
+if __name__ == '__main__':
+    game = GameOfLife.from_file('homework03/grid.txt')
