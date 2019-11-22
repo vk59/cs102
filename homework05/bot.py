@@ -65,36 +65,34 @@ def parse_schedule_for_a_day(web_page, num_of_day):
     # Название дисциплин и имена преподавателей
     lessons_list = schedule_table.find_all("td", attrs={"class": "lesson"})
     lessons_list = [lesson.text.split('\n\n') for lesson in lessons_list]
-    lessons_list = [', '.join([info for info in lesson_info if info]) for lesson_info in lessons_list]
+    lessons_list = [', '.join(
+        [info for info in lesson_info if info])
+        for lesson_info in lessons_list]
 
     return times_list, locations_list, lessons_list
 
 
-def get_schedule_cash(group, day, week = ''):
+def get_schedule_cash(group, day, week=''):
     '''
     Examples of parameters:
         group = 'K3140'
         day = '1'
         week = '2'
-    
     out:
         [[], [], []]
     or: None (if there is not lessons)
     '''
-    
     if week == '':
         week_num = 0
-    else: 
+    else:
         week_num = int(week)
 
     global CASHED_TIMETABLE
     global days
     if CASHED_TIMETABLE.get(group) is None:
         CASHED_TIMETABLE[group] = {}
-    
     if CASHED_TIMETABLE[group].get(week_num) is None:
         CASHED_TIMETABLE[group][week_num] = {}
-    
     if CASHED_TIMETABLE[group][week_num].get(day) is None:
         web_page = get_page(group, week)
         schedule = parse_schedule_for_a_day(web_page, day)
@@ -106,11 +104,10 @@ def get_schedule_cash(group, day, week = ''):
             CASHED_TIMETABLE[group][week_num][day] = [
                 schedule, date.today()]
             return schedule
-    
     # checking when the latest downloading of schedule was
     elif date.today() \
         - CASHED_TIMETABLE[group][week_num][day][1] > datetime.timedelta(
-            days = 7):
+            days=7):
         web_page = get_page(group, week)
         schedule = parse_schedule_for_a_day(web_page, day)
         if schedule is None:
@@ -127,7 +124,9 @@ def get_schedule_cash(group, day, week = ''):
             return schedule
 
 
-@bot.message_handler(commands=['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+@bot.message_handler(commands=[
+    'monday', 'tuesday', 'wednesday', 'thursday',
+    'friday', 'saturday', 'sunday'])
 def get_schedule(message):
     """ Получить расписание на указанный день """
     mes = message.text.split()
@@ -140,13 +139,17 @@ def get_schedule(message):
         group = mes[2]
     schedule = get_schedule_cash(group, days[day[1:]], num_week)
     resp = ''
-    if not schedule is None:
+    if schedule is not None:
         times_lst, locations_lst, lessons_lst = schedule
-        for time, location, lession in zip(times_lst, locations_lst, lessons_lst):
+        for time, location, lession in zip(
+                times_lst, locations_lst, lessons_lst):
             resp += '<b>{}</b>, {}, {}\n'.format(time, location, lession)
-        bot.send_message(message.chat.id, resp, parse_mode = 'HTML')
+        bot.send_message(message.chat.id, resp, parse_mode='HTML')
     else:
-        bot.send_message(message.chat.id, '<b>В этот день нет занятий</b>', parse_mode = 'HTML')
+        bot.send_message(
+            message.chat.id,
+            '<b>В этот день нет занятий</b>',
+            parse_mode='HTML')
 
 
 @bot.message_handler(commands=['near'])
@@ -162,43 +165,54 @@ def get_near_lesson(message):
     date_of_lesson = date.today()
     day_today = date_today.isoweekday()
     week_today = (date_today - date_first_week).days // 7 % 2 + 1
-    bot.send_message(message.chat.id, 'Загружаем расписание...', parse_mode = 'HTML')
+    bot.send_message(
+        message.chat.id, 'Загружаем расписание...', parse_mode='HTML')
     schedule = get_schedule_cash(group, day_today, week_today)
-    bot.send_message(message.chat.id, str(day_today), parse_mode = 'HTML')
     # explore near schedule
-    bot.send_message(message.chat.id, 'Проверяем...', parse_mode = 'HTML')
-    hour = 23
-    minute = 59
-    while schedule is None \
-        or hour < hour_now or \
-        hour_now == hour and minute_now > minute:
-        if schedule is None:
-            bot.send_message(message.chat.id, f'{date_of_lesson}, week: {week_today} None schedule', parse_mode = 'HTML')
-        else:
-            bot.send_message(message.chat.id, f'{date_of_lesson}, мда', parse_mode = 'HTML')
-        date_of_lesson = date_of_lesson + datetime.timedelta(days = 1)
+    # checking if there is not lessons today (and if they finished)
+    Flag = False
+    # checking if lessons finished
+    if schedule is not None:
+        times_lst, locations_lst, lessons_lst = schedule
+        hour = int(times_lst[len(times_lst)-1][0:2])
+        minute = int(times_lst[len(times_lst)-1][3:5])
+        if hour < hour_now or hour == hour_now and minute < minute_now:
+            Flag = True
+    while schedule is None or Flag:
+        date_of_lesson = date_of_lesson + datetime.timedelta(days=1)
         day_of_lesson = date_of_lesson.isoweekday()
         week_today = (date_of_lesson - date_first_week).days // 7 % 2 + 1
         schedule = get_schedule_cash(group, day_of_lesson, week_today)
-
+        if schedule is not None:
+            times_lst, locations_lst, lessons_lst = schedule
+            hour = int(times_lst[i][0:2])
+            minute = int(times_lst[i][3:5])
+            if hour < hour_now or hour == hour_now and minute < minute_now:
+                Flag = True
+            else:
+                Flag = False
     times_lst, locations_lst, lessons_lst = schedule
-    bot.send_message(message.chat.id, 'Ищем ближайшее занятие...', parse_mode = 'HTML')
+    bot.send_message(
+        message.chat.id, 'Ищем ближайшее занятие...', parse_mode='HTML')
     for i in range(len(times_lst)):
         hour = int(times_lst[i][0:2])
         minute = int(times_lst[i][3:5])
         if date_today < date_of_lesson:
             resp = f'Ближайшее занятие состоится {date_of_lesson}: \n'
-            resp += '<b>{}</b>, {}, {}\n'.format(times_lst[0], locations_lst[0], lessons_lst[0])
+            resp += '<b>{}</b>, {}, {}\n'.format(
+                times_lst[0], locations_lst[0], lessons_lst[0])
             break
         elif hour_now < hour:
             resp = f'Ближайшее занятие состоится {date_of_lesson}: \n'
-            resp += '<b>{}</b>, {}, {}\n'.format(times_lst[i], locations_lst[i], lessons_lst[i])
+            resp += '<b>{}</b>, {}, {}\n'.format(
+                times_lst[i], locations_lst[i], lessons_lst[i])
             break
         elif minute_now < minute:
             resp = f'Ближайшее занятие состоится {date_of_lesson}: \n'
-            resp += '<b>{}</b>, {}, {}\n'.format(times_lst[i], locations_lst[i], lessons_lst[i])
+            resp += '<b>{}</b>, {}, {}\n'.format(
+                times_lst[i], locations_lst[i], lessons_lst[i])
             break
-    bot.send_message(message.chat.id, resp, parse_mode = 'HTML')
+    bot.send_message(message.chat.id, resp, parse_mode='HTML')
 
 
 @bot.message_handler(commands=['tomorrow'])
@@ -208,15 +222,15 @@ def get_tommorow(message):
     mes = message.text.split()
     group = mes[1]
     date_first_week = datetime.date(2019, 11, 18)
-    date_tomorrow = date.today() + datetime.timedelta(days = 1)
+    date_tomorrow = date.today() + datetime.timedelta(days=1)
     day_tomorrow = date_tomorrow.isoweekday()
     week_tomorrow = (date_tomorrow - date_first_week).days // 7 % 2 + 1
     resp = 'Ищем расписание на завтра...'
-    bot.send_message(message.chat.id, resp, parse_mode = 'HTML')
+    bot.send_message(message.chat.id, resp, parse_mode='HTML')
     schedule = get_schedule_cash(group, day_tomorrow, week_tomorrow)
     # поиск занятий на завтра (или на следующий рабочий день)
     while schedule is None:
-        date_tomorrow = date_tomorrow + datetime.timedelta(days = 1)
+        date_tomorrow = date_tomorrow + datetime.timedelta(days=1)
         day_tomorrow = date_tomorrow.isoweekday()
         week_tomorrow = (date_tomorrow - date_first_week).days // 7 % 2 + 1
         schedule = get_schedule_cash(group, day_tomorrow, week_tomorrow)
@@ -227,7 +241,7 @@ def get_tommorow(message):
     times_lst, locations_lst, lessons_lst = schedule
     for time, location, lession in zip(times_lst, locations_lst, lessons_lst):
         resp += '<b>{}</b>, {}, {}\n'.format(time, location, lession)
-    bot.send_message(message.chat.id, resp, parse_mode = 'HTML')
+    bot.send_message(message.chat.id, resp, parse_mode='HTML')
 
 
 @bot.message_handler(commands=['all'])
@@ -237,7 +251,7 @@ def get_all_schedule(message):
     group = mes[1]
     # title of message
     resp = f'<b>ВСЁ РАСПИСАНИЕ гр. {group}</b>'
-    bot.send_message(message.chat.id, resp, parse_mode = 'HTML')
+    bot.send_message(message.chat.id, resp, parse_mode='HTML')
     # going to check all the timetable (from the first weel to second)
     for week in range(1, 3):
         resp = ''
@@ -252,16 +266,17 @@ def get_all_schedule(message):
             # getting timetable
             schedule = get_schedule_cash(group, this_day_num, str(week))
             # check, are there lessons or not
-            if not schedule is None:
+            if schedule is not None:
                 times_lst, locations_lst, lessons_lst = schedule
-                for time, location, lession in zip(times_lst, locations_lst, lessons_lst):
-                    resp += '<b>{}</b>, {}, {}\n'.format(time, location, lession)
+                for time, location, lession in zip(
+                        times_lst, locations_lst, lessons_lst):
+                    resp += '<b>{}</b>, {}, {}\n'.format(
+                            time, location, lession)
             else:
                 resp += '<b>Нет занятий</b>\n'
         # send message
-        bot.send_message(message.chat.id, resp, parse_mode = 'HTML')
+        bot.send_message(message.chat.id, resp, parse_mode='HTML')
 
-    
+
 if __name__ == '__main__':
     bot.polling(none_stop=True)
-
