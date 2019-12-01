@@ -176,7 +176,7 @@ def get_near_lesson(message):
         times_lst, locations_lst, lessons_lst = schedule
         hour = int(times_lst[len(times_lst)-1][0:2])
         minute = int(times_lst[len(times_lst)-1][3:5])
-        if hour < hour_now or hour == hour_now and minute < minute_now:
+        if hour > hour_now or (hour == hour_now and minute > minute_now):
             Flag = True
     while schedule is None or Flag:
         date_of_lesson = date_of_lesson + datetime.timedelta(days=1)
@@ -185,8 +185,8 @@ def get_near_lesson(message):
         schedule = get_schedule_cash(group, day_of_lesson, week_today)
         if schedule is not None:
             times_lst, locations_lst, lessons_lst = schedule
-            hour = int(times_lst[i][0:2])
-            minute = int(times_lst[i][3:5])
+            hour = int(times_lst[len(times_lst)-1][0:2])
+            minute = int(times_lst[len(times_lst)-1][3:5])
             if hour < hour_now or hour == hour_now and minute < minute_now:
                 Flag = True
             else:
