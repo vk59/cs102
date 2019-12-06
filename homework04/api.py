@@ -3,10 +3,9 @@ import time
 import random
 import config
 import json
-import datetime
 
 
-with open("access/config.json") as config:
+with open("config.json") as config:
     con = json.load(config)
 
 
@@ -52,33 +51,3 @@ def get_friends(user_id, fields):
     url = "{}/friends.get".format(domain)
     response = get(url, params=query_params)
     return response.json()
-
-
-def age_predict(user_id):
-    """
-    >>> age_predict(???)
-    ???
-    """
-    assert isinstance(user_id, int), "user_id must be positive integer"
-    assert user_id > 0, "user_id must be positive integer"
-    count_real_friends = -1
-    sum_of_ages = -1
-    friends = get_friends(user_id, fields='bdate')
-    count_real_friends = 0
-    sum_of_ages = 0
-    count = friends['response']['count']
-    for i in range(count):
-        try:
-            birthday_date_str = friends['response']['items'][i]['bdate']
-            d, m, y = birthday_date_str.split('.')
-            # all ok, there is birthday date, we can calculate age of
-            # this friends
-            date_today = datetime.date.today()
-            birthday_date = datetime.date(int(y), int(m), int(d))
-            delta_dates = date_today - birthday_date
-            age = delta_dates.days // 365
-            sum_of_ages += age
-            count_real_friends += 1
-        except:
-            pass
-    return sum_of_ages // count_real_friends
