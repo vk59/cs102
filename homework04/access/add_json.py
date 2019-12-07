@@ -1,7 +1,7 @@
 import json
 
 data = {
-    "access_token": "08b500321f5559ba9d05b8ba796695021c36d4c07288c7526312dbe4a8e3e57dd6da5def2e1221d37ba80"
+    "access_token": "35efe5dd8034ab224caa885275d5449f56827204357046b062c242616d5ac1779f2da8147882977bb1d6f"
 }
 with open("config.json", "w") as write_file:
     json.dump(data, write_file)

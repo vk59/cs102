@@ -5,10 +5,6 @@ import config
 import json
 
 
-with open("config.json") as config:
-    con = json.load(config)
-
-
 def get(url, params={}, timeout=5, max_retries=10, backoff_factor=0.3):
     """ Выполнить GET-запрос
     :param url: адрес, на который необходимо выполнить запрос
@@ -38,6 +34,8 @@ def get_friends(user_id, fields):
     :param user_id: идентификатор пользователя, список друзей которого нужно получить
     :param fields: список полей, которые нужно получить для каждого пользователя
     """
+    with open("config.json") as config:
+        con = json.load(config)
     assert isinstance(user_id, int), "user_id must be positive integer"
     assert isinstance(fields, str), "fields must be string"
     assert user_id > 0, "user_id must be positive integer"
