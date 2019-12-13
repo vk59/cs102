@@ -34,15 +34,15 @@ def get_friends(user_id, fields):
     :param user_id: идентификатор пользователя, список друзей которого нужно получить
     :param fields: список полей, которые нужно получить для каждого пользователя
     """
-    with open("config.json") as config:
-        con = json.load(config)
+    # with open("config.json") as config:
+    #    con = json.load(config)
     assert isinstance(user_id, int), "user_id must be positive integer"
     assert isinstance(fields, str), "fields must be string"
     assert user_id > 0, "user_id must be positive integer"
     query_params = {
         'user_id': user_id,
         'fields': fields,
-        'access_token': con['access_token'],
+        'access_token': '88f75997b99ee6047267a4159fa63f7a9a2915ee644ed79af54b495092d309f4d4ec1537203ec8d9ebc43',
         'v': '5.103'
     }
     domain = "https://api.vk.com/method"
