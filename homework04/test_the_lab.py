@@ -1,7 +1,8 @@
 from network import get_network, plot_graph
-from api import get_friends
+from api import get_friends, get_wall
 from age import age_predict
 
+'''
 print('test age_predict')
 print(age_predict(125483792))
 
@@ -18,3 +19,6 @@ for friend in friends['items']:
         break
 edges = get_network(users_ids, as_edgelist=True)
 plot_graph(edges, names)
+'''
+
+get_wall(domain='styd.pozor', count=120)
