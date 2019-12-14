@@ -71,7 +71,7 @@ def get_wall(
         'filter': filter,
         'extended': extended,
         'fields': fields,
-        'access_token': '0f8daf2aef0f352ca4002e63893d5f3fa06f4195f6635a2b5e67f27ae286447e5828e07f908b3feaad155',
+        'access_token': 'aabaec7324040a5b1182778e7c2015d7c467b120bd4fda7895a81137547db7585c706200587c0f671a39a',
         'v': '5.103'
     }
     if count <= 100:
@@ -81,7 +81,11 @@ def get_wall(
         items_list = response['response']['items']
         post_list = []
         for item in items_list:
-            post_list.append(item['text'])
+            try:
+                post_list.append(item['text'])
+                print(item['text'])
+            except UnicodeError:
+                pass
         return post_list
     else:
         code = """ var count = 2433;

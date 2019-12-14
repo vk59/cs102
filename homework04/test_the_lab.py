@@ -1,6 +1,7 @@
 from network import get_network, plot_graph
 from api import get_friends, get_wall
 from age import age_predict
+from api_models import normalize
 
 '''
 print('test age_predict')
@@ -20,5 +21,6 @@ for friend in friends['items']:
 edges = get_network(users_ids, as_edgelist=True)
 plot_graph(edges, names)
 '''
-
-get_wall(domain='styd.pozor', count=120)
+with open('1.txt', 'w') as f:
+    post_list = get_wall(domain='pn6', count=5)
+    f.writelines(normalize(post_list))

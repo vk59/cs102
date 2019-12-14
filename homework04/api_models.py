@@ -1,13 +1,33 @@
-import pandas as pd
 import requests
-import textwrap
+import pymorphy2
 
-from pandas.io.json import json_normalize
-from string import Template
-from tqdm import tqdm
-from api import get
+from api import get_wall
 
-def get_wall(
+def normalize(posts_list):
+    # убираем всё лишнее в посте
+    i = 0
+    new_posts = []
+    for post in posts_list:
+        new_posts.append(post)
+        for ch in post:
+            if not ('а' <= ch <= 'я' or 'А' <= ch <= 'Я' or ch == ' '):
+                new_posts[i] = new_posts[i][:new_posts[i].index(ch)] +\
+                    new_posts[i][new_posts[i].index(ch) + 1:]
+        i += 1
+    return new_posts
+    # проводим нормализацию слов
+    words = []
+    morph = MorphAnalyzer()
+    i = 0
+    for post in new_posts:
+        words.append(post.split())
+        for word in words[i]:
+            norm_word = morph.parse(word)[0].tag.POS
+            word = norm_word
+        i += 1
+    return words
+
+def topics_model(
     owner_id: str ='',
     domain: str='',
     offset: int=0,
@@ -16,39 +36,16 @@ def get_wall(
     extended: int=0,
     fields: str='',
     v: str='5.103'
-) -> pd.DataFrame:
-"""
-    Возвращает список записей со стены пользователя или сообщества.
+):
+    post_list = get_wall(
+        owner_id=owner_id,
+        domain=domain,
+        offset=offset,
+        count=count,
+        filter=filter,
+        extended=extended,
+        fields=fields,
+        v=v
+    )
+    
 
-    @see: https://vk.com/dev/wall.get 
-
-    :param owner_id: Идентификатор пользователя или сообщества, со стены которого необходимо получить записи.
-    :param domain: Короткий адрес пользователя или сообщества.
-    :param offset: Смещение, необходимое для выборки определенного подмножества записей.
-    :param count: Количество записей, которое необходимо получить (0 - все записи).
-    :param filter: Определяет, какие типы записей на стене необходимо получить.
-    :param extended: 1 — в ответе будут возвращены дополнительные поля profiles и groups, содержащие информацию о пользователях и сообществах.
-    :param fields: Список дополнительных полей для профилей и сообществ, которые необходимо вернуть.
-    :param v: Версия API.
-    """
-    # with open("config.json") as config:
-    #    con = json.load(config)
-    query_params = {
-        'owner_id': owner_id,
-        'domain': domain,
-        'offset': offset,
-        'count': count,
-        'filter': filter,
-        'extended': extended,
-        'fields': fields,
-        'access_token': 'fd5f80e811feca5e357a2c9d7a42f1ca80c8295abed6d095885277550225a79a5111532334488b19268a4',
-        'v': '5.103'
-    }
-    domain = "https://api.vk.com/method"
-    url = "{}/wall.get".format(domain)
-    response = get(url, params=query_params)
-    item_list = response['response']['items']
-    post_list = []
-    for item in item_list:
-        post_list.append(item['text'])
-    return post_list
