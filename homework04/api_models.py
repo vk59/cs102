@@ -47,5 +47,3 @@ def topics_model(
         fields=fields,
         v=v
     )
-    
-

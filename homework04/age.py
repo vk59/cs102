@@ -19,7 +19,7 @@ def age_predict(user_id: int) -> Optional[float]:
     count_real_friends = 0
     sum_of_ages = 0
     count = friends['response']['count']
-    for i in range(count):
+    for friend in friends:
         try:
             birthday_date_str = friends['response']['items'][i]['bdate']
             d, m, y = birthday_date_str.split('.')
