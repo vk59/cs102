@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import time
+import random
 
 
 def extract_news(parser):
@@ -8,12 +10,14 @@ def extract_news(parser):
     tbl_list = parser.table.findAll('table')
     tr_list = tbl_list[1].findAll('tr')
     i = 0
-    while (i < 88):
-        print('Collecting ..', i)
+    while (i < len(tr_list) - 2):
         this_new = dict() 
         a_title_list = tr_list[i].findAll('a')
-        title = a_title_list[0].text
-        url = a_title_list[1].text
+        title = a_title_list[1].text
+        try:
+            url = a_title_list[2].text
+        except:
+            url = ''
         i += 1
         a_sub_list = tr_list[i].findAll('a')
         author = a_sub_list[0].text
@@ -57,13 +61,18 @@ def get_news(url, n_pages=1):
     """ Collect news from a given web page """
     news = []
     while n_pages:
+        # timeout = random.random() * 30
+        # time.sleep(timeout)
         print("Collecting data from page: {}".format(url))
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
         news_list = extract_news(soup)
         next_page = extract_next_page(soup)
         url = "https://news.ycombinator.com/" + next_page
-        news.append(news_list)
         print(news_list)
+        news.append(news_list)
         n_pages -= 1
     return news
+
+
+print(get_news("https://news.ycombinator.com/newest", n_pages=12))
