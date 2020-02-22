@@ -63,8 +63,7 @@ def get_news(url, n_pages=1):
         response = requests.get(url)
         timeout = 30*random.random()
         while response.status_code != 200:
-            print("Sleeping: ", timeout)
-            time.sleep(timeout)
+           time.sleep(timeout)
             response = requests.get(url)
             timeout = timeout + 40*random.random()
         soup = BeautifulSoup(response.text, "html.parser")
@@ -72,8 +71,6 @@ def get_news(url, n_pages=1):
         next_page = extract_next_page(soup)
         url = "https://news.ycombinator.com/" + next_page
         news.append(news_list)
-        print(news_list)
         n_pages -= 1
     return news
 
-print(get_news("https://news.ycombinator.com/newest", n_pages=10))
