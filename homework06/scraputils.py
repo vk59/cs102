@@ -10,14 +10,11 @@ def extract_news(parser):
     tbl_list = parser.table.findAll('table')
     tr_list = tbl_list[1].findAll('tr')
     i = 0
-    while (i < len(tr_list) - 2):
+    while (i < len(tr_list) - 3):
         this_new = dict() 
         a_title_list = tr_list[i].findAll('a')
         title = a_title_list[1].text
-        try:
-            url = a_title_list[2].text
-        except:
-            url = ''
+        url = a_title_list[1]['href']
         i += 1
         a_sub_list = tr_list[i].findAll('a')
         author = a_sub_list[0].text
@@ -36,7 +33,7 @@ def extract_news(parser):
             p_str = tr_list[i].span.text
             points = int(p_str[:-7])
         except:
-            points = 0
+            points = 1
         i += 2
         this_new = {
             'title': title,
@@ -64,19 +61,19 @@ def get_news(url, n_pages=1):
         
         print("Collecting data from page: {}".format(url))
         response = requests.get(url)
-        timeout = random.random()*10
+        timeout = 30*random.random()
         while response.status_code != 200:
-            print("Recollecting data from page: {}".format(url))
+            print("Sleeping: ", timeout)
             time.sleep(timeout)
             response = requests.get(url)
-            print(response.status_code)
-            timeout += random.random()*15
-        
+            timeout = timeout + 40*random.random()
         soup = BeautifulSoup(response.text, "html.parser")
         news_list = extract_news(soup)
         next_page = extract_next_page(soup)
         url = "https://news.ycombinator.com/" + next_page
-        print(news_list)
         news.append(news_list)
+        print(news_list)
         n_pages -= 1
     return news
+
+print(get_news("https://news.ycombinator.com/newest", n_pages=10))
