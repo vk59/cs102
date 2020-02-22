@@ -19,7 +19,7 @@ def extract_news(parser):
         a_sub_list = tr_list[i].findAll('a')
         author = a_sub_list[0].text
         try:
-            com_str = a_sub_list[3].text
+            com_str = a_sub_list[5].text
             try:
                 comments = int(com_str[:-9])
             except:
