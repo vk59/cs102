@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from scraputils import get_news
 
 
 Base = declarative_base()
@@ -19,4 +20,32 @@ class News(Base):
     points = Column(Integer)
     label = Column(String)
 
+    def __init__(self, title, url, author, comments, points):
+        self.title = title
+        self.url = url
+        self.author = author
+        self.comments = comments
+        self.points = points
+        self.label = None
+
+
 Base.metadata.create_all(bind=engine)
+
+s = session()
+news = get_news('https://news.ycombinator.com/newest', n_pages=34)
+for post in news:
+    p_title = post['title']
+    p_url = post['url']
+    p_author = post['author']
+    p_comments = post['comments']
+    p_points = post['points']
+    post_db = News(
+        title=p_title,
+        url=p_url,
+        author=p_author,
+        comments=p_comments,
+        points=p_points
+    )
+    s.add(post_db)
+    s.commit()
+s.close()
