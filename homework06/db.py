@@ -34,7 +34,7 @@ Base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":
     s = session()
-    news = get_news('https://news.ycombinator.com/newest', n_pages=34)
+    news = get_news('https://news.ycombinator.com/news', n_pages=15)
     for post in news:
         p_title = post['title']
         p_url = post['url']
