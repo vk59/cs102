@@ -62,6 +62,7 @@ def get_news(url, n_pages=1):
         response = requests.get(url)
         timeout = 30*random.random()
         while response.status_code != 200:
+            print("Timeout: ", timeout)
             time.sleep(timeout)
             response = requests.get(url)
             timeout = timeout + 40*random.random()
