@@ -45,6 +45,7 @@ def update_news():
                             points=new['points'])
             s.add(this_new)
             s.commit()
+        prev_news_list = s.query(News).all()
     redirect("/news")
 
 
