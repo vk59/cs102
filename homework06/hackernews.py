@@ -29,7 +29,7 @@ def add_label():
 
 @route("/update")
 def update_news():
-    news_list = get_news("https://news.ycombinator.com/newest", n_pages=1)
+    news_list = get_news("https://news.ycombinator.com/newest", n_pages=4)
     s = session()
     prev_news_list = s.query(News).all()
     for new in news_list:

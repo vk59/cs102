@@ -34,6 +34,11 @@
                         <a href="/update" class="ui right floated small primary button">I Wanna more Hacker News!</a>
                     </th>
                 </tr>
+		<tr>
+                    <th colspan="7">
+                        <a href="/recomendations" class="ui right floated small primary button">Recommend me!</a>
+                    </th>
+                </tr>
             </tfoot>
         </table>
         </div>
