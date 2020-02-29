@@ -14,8 +14,8 @@ class NaiveBayesClassifier:
     def fit(self, X, y):
         """ Fit Naive Bayes classifier according to X, y. """
         c = Counter()
-        for word in y:
-            c[word] += 1
+        for label in y:
+            c[label] += 1
         self.labels = set(y)
 
         # априорная вероятность p(label)
@@ -53,7 +53,7 @@ class NaiveBayesClassifier:
 
     def predict(self, X):
         """ Perform classification on an array of test vectors X. """
-        predict_dict = {}
+        predict_list = []
         for x in X:
             s = x.split()
             prob = {}
@@ -73,18 +73,15 @@ class NaiveBayesClassifier:
                 if prob[l] > maximum:
                     max_label = l
                     maximum = prob[l]
-            predict_dict[x] = max_label
-        result = []
-        for post in predict_dict:
-            result.append(dict(title=post, label=predict_dict[post]))
-        return result
+            predict_list.append(dict(title=x, label=max_label))
+        return predict_list
                     
                     
     def score(self, X_test, y_test):
         """ Returns the mean accuracy on the given test data and labels. """
         count = 0
         classifier_answers = self.predict(X_test)
-        for i in range(len(set(X_test))):
+        for i in range(len(X_test)):
             if classifier_answers[i]['label'] == y_test[i]:
                 count += 1
         return count / len(y_test)
