@@ -68,7 +68,7 @@ class NaiveBayesClassifier:
                         p_wc = 1 / len(self.words)
                     prob[l] += log(p_wc)
             max_label = ''
-            maximum = -1000000000
+            maximum = -10000000000000000000
             for l in self.labels:
                 if prob[l] > maximum:
                     max_label = l

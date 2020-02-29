@@ -76,7 +76,7 @@ def recomendations():
     X_train, y_train, X_test, y_test = X[:part], y[:part], X[part:], y[part:]
     model.fit(X_train, y_train)
     score=model.score(X_test, y_test)
-    rec = NaiveBayesClassifier()
+    rec = NaiveBayesClassifier(alpha=0.01)
     rec.fit(X, y)
     rows = s.query(News).filter(News.label == None).all()
     X_new = []
