@@ -21,6 +21,7 @@ responses = {
         'Specified method is invalid for this resource.'),
 }
 
+
 class FileProducer(object):
 # производитель файлов
 
