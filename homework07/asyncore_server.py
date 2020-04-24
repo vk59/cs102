@@ -92,17 +92,6 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.file_type = ""
         self.path = ""
 
-    # def get_path(self):
-    #     return self.path
-
-    # @staticmethod
-    # def get_server_name():
-    #     return "MyServer 1.0"
-
-    # @staticmethod
-    # def get_port():
-    #     return 9000
-
     def collect_incoming_data(self, data):
         self.data = data.decode()
         log.debug(f"Incoming data: {self.data}")
