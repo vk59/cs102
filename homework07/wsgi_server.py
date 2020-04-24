@@ -136,8 +136,8 @@ class AsyncWSGIRequestHandler(httpd.AsyncHTTPRequestHandler):
         finally:
             self.client_connection.close()
 
-
-SERVER_ADDRESS = (HOST, PORT) = 'localhost', 9000
+args = httpd.parse_args()
+SERVER_ADDRESS = (HOST, PORT) = args.host, args.port
 
 
 def make_server(server_address, application):
