@@ -91,6 +91,7 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.content_len = 0
         self.file_type = ""
         self.path = ""
+        self.server_name = "My Server 47.01"
 
     def collect_incoming_data(self, data):
         self.data = data.decode()
@@ -173,7 +174,7 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         return now.strftime("%c")
 
     def send_head(self):
-        self.send_header("Server", "MyServer")
+        self.send_header("Server", self.server_name)
         self.send_header("Date", self.date_time_string())
         self.send_header("Content-Length", self.content_len)
         self.send_header("Content-Type", self.file_type)
