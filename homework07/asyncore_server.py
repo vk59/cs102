@@ -10,12 +10,6 @@ from mimetypes import guess_type
 from time import strftime
 from datetime import datetime
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='[%(levelname)s] %(message)s'
-)
-log = logging
-
 def url_normalize(path):
     if path.startswith("/"):
         path = path[1:]
@@ -48,11 +42,9 @@ responses = {
 }
 
 class FileProducer(object):
-# производитель файлов
 
     def __init__(self, f, chunk_size=4096):
         self.file = f
-        # chunk size - размер куска
         self.chunk_size = chunk_size
 
     def more(self):
@@ -75,13 +67,11 @@ class AsyncServer(asyncore.dispatcher):
 
 
     def handle_accepted(self, sock, addr):
-        # ручка принята
         log.debug(f"Incoming connection from {addr}")
         AsyncHTTPRequestHandler(sock)
 
     def serve_forever(self):
-        # служить вечно
-        pass
+        asyncore.loop()
 
 
 class AsyncHTTPRequestHandler(asynchat.async_chat):
@@ -106,10 +96,8 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.parse_request()
 
     def parse_request(self):
-        # разбор запроса
         if not self.request:
             self.data_list = self.data.split('\r\n')
-            # log.debug(f"Data list: {self.data_list}")
             
             self.parse_headers()
 
@@ -120,7 +108,6 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.handle_request()
 
     def parse_headers(self):
-        # разбор заголовков
         first_line_list = self.data_list[0].split()
         method = first_line_list[0]
         uri = url_normalize(first_line_list[1])
@@ -149,11 +136,9 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
 
         if body_index:
             self.body = '\n'.join(self.data_list[body_index + 1:])
-        
         # log.debug(f"REQUEST: {self.request}")
 
     def handle_request(self):
-        # обработать запрос
         method_name = 'do_' + self.request['method']
         if not hasattr(self, method_name):
             self.send_error(405)
@@ -163,12 +148,9 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         handler()
 
     def send_header(self, keyword: str, value: str) -> None:
-        # отправить заголовок
-        # checked
         self.push(f"{keyword}: {value}\r\n".encode())
 
     def send_error(self, code, message=None):
-        # отправить ошибку
         try:
             short_msg, long_msg = responses[code]
         except KeyError:
@@ -181,30 +163,26 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.end_headers()
 
     def send_response(self, code, message):
-        # отправить ответ
         self.push("HTTP/1.1 {} {}\r\n".format(code, message).encode())
 
     def end_headers(self):
-        # конечные заголовки
         self.push("\r\n".encode())
 
     @staticmethod
     def date_time_string():
-        # дата и время в строке
         now = datetime.now()
         return now.strftime("%c")
 
     def send_head(self):
-        # отправить голову
         self.send_header("Server", "MyServer")
         self.send_header("Date", self.date_time_string())
         self.send_header("Content-Length", self.content_len)
         self.send_header("Content-Type", self.file_type)
         self.send_header("Connection", "Closed")
+        self.end_headers()
         
     def send_file(self, uri):
         f = open(uri, 'rb')
-        self.push("\r\n".encode())
         producer = FileProducer(f)
         file_data = bytes()
         while True:
@@ -215,7 +193,6 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.send(file_data)   
 
     def do_GET(self):
-        # выполнить GET
         if self.request['uri'] == '':                
             self.send_response(code=200, message=responses[200][1])
             self.content_len = str(os.path.getsize('index.html'))
@@ -229,7 +206,7 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
                 f.close()
                 self.file_type, _ = guess_type(uri)
                 self.content_len = os.path.getsize(uri)
-                log.debug(f'CONTENT_LEN {uri}: {self.content_len}')
+                # log.debug(f'CONTENT_LEN {uri}: {self.content_len}')
                 self.send_response(code=200, message=responses[200][1])
                 self.send_head()
                 self.send_file(uri)
@@ -241,7 +218,6 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         
 
     def do_HEAD(self):
-        # выполнить HEAD
         if self.request['uri'] == '':                
             self.send_response(code=200, message=responses[200][1])
             self.content_len = os.path.getsize('index.html')
@@ -260,6 +236,7 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
                 self.send_error(code=403, message=responses[403][1])
         self.handle_close()
 
+
 def parse_args():
     parser = argparse.ArgumentParser("Simple asynchronous web-server")
     parser.add_argument("--host", dest="host", default="127.0.0.1")
@@ -277,5 +254,18 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    server = AsyncServer('localhost', 9000)
-    asyncore.loop()
+    args = parse_args()
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='[%(levelname)s] %(message)s'
+    )
+    log = logging
+
+    # DOCUMENT_ROOT = args.document_root
+    # for _ in range(args.nworkers):
+    #     p = multiprocessing.Process(target=run)
+    #     p.start()
+
+    server = AsyncServer(host=args.host, port=args.port)
+    server.serve_forever()
+
