@@ -30,6 +30,12 @@ def url_normalize(path):
         path = path[:num]
     return path
 
+logging.basicConfig(
+        level=logging.DEBUG,
+        format='[%(levelname)s] %(message)s'
+    )
+log = logging
+
 responses = {
     200: ('OK', 'Request fulfilled, document follows'),
     400: ('Bad Request',
@@ -84,22 +90,32 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.shutdown = 0
         self.content_len = 0
         self.file_type = ""
+        self.path = ""
+
+    # def get_path(self):
+    #     return self.path
+
+    # @staticmethod
+    # def get_server_name():
+    #     return "MyServer 1.0"
+
+    # @staticmethod
+    # def get_port():
+    #     return 9000
 
     def collect_incoming_data(self, data):
-        # сбор входящих данных
         self.data = data.decode()
         log.debug(f"Incoming data: {self.data}")
-        # self._collect_incoming_data(data)
 
     def found_terminator(self):
-        # найти терминатор
         self.parse_request()
 
     def parse_request(self):
         if not self.request:
+            self.request = {}
             self.data_list = self.data.split('\r\n')
             
-            self.parse_headers()
+            self.parse_headers()    
 
             if not self.response_is_good:
                 self.send_error(400, responses[400])
@@ -109,15 +125,9 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
 
     def parse_headers(self):
         first_line_list = self.data_list[0].split()
-        method = first_line_list[0]
-        uri = url_normalize(first_line_list[1])
-        log.debug(f'URI: {uri}')
-        protocol = first_line_list[2]
-        self.request = dict(
-            method=method,
-            uri=uri,
-            protocol=protocol
-        )
+        self.method = first_line_list[0]
+        self.path = url_normalize(first_line_list[1])
+        self.protocol = first_line_list[2]
         self.response_is_good = True
 
         self.info = self.data_list[1:]
@@ -139,7 +149,7 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         # log.debug(f"REQUEST: {self.request}")
 
     def handle_request(self):
-        method_name = 'do_' + self.request['method']
+        method_name = 'do_' + self.method
         if not hasattr(self, method_name):
             self.send_error(405)
             self.handle_close()
@@ -181,8 +191,8 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.send_header("Connection", "Closed")
         self.end_headers()
         
-    def send_file(self, uri):
-        f = open(uri, 'rb')
+    def send_file(self):
+        f = open(self.path, 'rb')
         producer = FileProducer(f)
         file_data = bytes()
         while True:
@@ -193,47 +203,36 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.send(file_data)   
 
     def do_GET(self):
-        if self.request['uri'] == '':                
+        if self.path == '':
+            self.path = 'index.html'
+        try:
+            f = open(self.path)
+            f.close()
+            self.file_type, _ = guess_type(self.path)
+            self.content_len = os.path.getsize(self.path)
+            # log.debug(f'CONTENT_LEN {uri}: {self.content_len}')
             self.send_response(code=200, message=responses[200][1])
-            self.content_len = str(os.path.getsize('index.html'))
-            self.file_type = guess_type('index.html')[0]
             self.send_head()
-            self.send_file('index.html')
-        else:
-            try:
-                uri = self.request['uri']
-                f = open(uri)
-                f.close()
-                self.file_type, _ = guess_type(uri)
-                self.content_len = os.path.getsize(uri)
-                # log.debug(f'CONTENT_LEN {uri}: {self.content_len}')
-                self.send_response(code=200, message=responses[200][1])
-                self.send_head()
-                self.send_file(uri)
-            except FileNotFoundError:
-                self.send_error(code=404, message=responses[404][1])
-            except PermissionError:
-                self.send_error(code=403, message=responses[403][1])
+            self.send_file()
+        except FileNotFoundError:
+            self.send_error(code=404, message=responses[404][1])
+        except PermissionError:
+            self.send_error(code=403, message=responses[403][1])
         self.handle_close()
         
 
     def do_HEAD(self):
-        if self.request['uri'] == '':                
+        if self.path == '':                
+            self.path = 'index.html'
+        try:
+            self.file_type, _ = guess_type(self.path)
+            self.content_len = os.path.getsize(self.path)
             self.send_response(code=200, message=responses[200][1])
-            self.content_len = os.path.getsize('index.html')
-            self.file_type = guess_type('index.html')[0]
             self.send_head()
-        else:
-            try:
-                uri = self.request['uri']
-                self.file_type, _ = guess_type(uri)
-                self.content_len = os.path.getsize(uri)
-                self.send_response(code=200, message=responses[200][1])
-                self.send_head()
-            except FileNotFoundError:
-                self.send_error(code=404, message=responses[404][1])
-            except PermissionError:
-                self.send_error(code=403, message=responses[403][1])
+        except FileNotFoundError:
+            self.send_error(code=404, message=responses[404][1])
+        except PermissionError:
+            self.send_error(code=403, message=responses[403][1])
         self.handle_close()
 
 
@@ -248,24 +247,14 @@ def parse_args():
     return parser.parse_args()
 
 
-# def run():
-#     server = AsyncServer(host=args.host, port=args.port)
-#     server.serve_forever()
+def run(args):
+    server = AsyncServer(host=args.host, port=args.port)
+    server.serve_forever()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='[%(levelname)s] %(message)s'
-    )
-    log = logging
-
-    # DOCUMENT_ROOT = args.document_root
-    # for _ in range(args.nworkers):
-    #     p = multiprocessing.Process(target=run)
-    #     p.start()
-
-    server = AsyncServer(host=args.host, port=args.port)
-    server.serve_forever()
-
+    DOCUMENT_ROOT = args.document_root
+    for _ in range(args.nworkers):
+        p = multiprocessing.Process(target=run, args=(args,))
+        p.start()
