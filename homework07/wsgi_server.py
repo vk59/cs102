@@ -52,25 +52,11 @@ class AsyncWSGIRequestHandler(httpd.AsyncHTTPRequestHandler):
         self.headers_set = [status, response_headers + server_headers]
 
     def handle_request(self):
-        # request_data = self.client_connection.recv(1024)
-        # self.request_data = request_data = request_data.decode('utf-8')
-        # # Print formatted request data a la 'curl -v'
-        # print(''.join(
-        #     f'< {line}\n' for line in request_data.splitlines()
-        # ))
-
-        # self.parse_request()
-
-        # Construct environment dictionary using request data
         env = self.get_environ()
-
-        # It's time to call our application callable and get
-        # back a result that will become HTTP response body
 
         self.application = self.get_app()
         result = self.application(env, self.start_response)
 
-        # Construct a response and send it back to the client
         self.finish_response(result)
 
     def finish_response(self, result):
