@@ -1,6 +1,7 @@
 import io
 import socket
 import sys
+from datetime import datetime
 import asyncore_server as httpd
 
 
@@ -18,45 +19,55 @@ class AsyncWSGIServer(httpd.AsyncServer):
 
 class AsyncWSGIRequestHandler(httpd.AsyncHTTPRequestHandler):
 
+    def __init__(self):
+        self.application = None
+
     def get_environ(self):
         env = {}
         # Required WSGI variables
         env['wsgi.version']      = (1, 0)
         env['wsgi.url_scheme']   = 'http'
-        env['wsgi.input']        = io.StringIO(self.request_data)
+        env['wsgi.input']        = io.StringIO(self.data)
         env['wsgi.errors']       = sys.stderr
         env['wsgi.multithread']  = False
         env['wsgi.multiprocess'] = False
         env['wsgi.run_once']     = False
         # Required CGI variables
-        env['REQUEST_METHOD']    = self.method    # GET
-        env['PATH_INFO']         = self.path              # /hello
-        env['SERVER_NAME']       = self.server_name       # localhost
-        env['SERVER_PORT']       = str(self.server_port)  # 8888
+        env['REQUEST_METHOD']    = self.method 
+        env['PATH_INFO']         = self.path    
+        env['SERVER_NAME']       = self.server_name       
+        env['SERVER_PORT']       = str(self.port) 
         return env
+
+    @staticmethod
+    def date_time_string():
+        now = datetime.now()
+        return now.strftime("%c")
 
     def start_response(self, status, response_headers, exc_info=None):
         server_headers = [
-            ('Date', 'Mon, 15 Jul 2019 5:54:48 GMT'),
-            ('Server', 'WSGIServer 0.2'),
+            ('Date', self.date_time_string()),
+            ('Server', 'WSGIServer 47.2'),
         ]
         self.headers_set = [status, response_headers + server_headers]
 
     def handle_request(self):
-        request_data = self.client_connection.recv(1024)
-        self.request_data = request_data = request_data.decode('utf-8')
-        # Print formatted request data a la 'curl -v'
-        print(''.join(
-            f'< {line}\n' for line in request_data.splitlines()
-        ))
+        # request_data = self.client_connection.recv(1024)
+        # self.request_data = request_data = request_data.decode('utf-8')
+        # # Print formatted request data a la 'curl -v'
+        # print(''.join(
+        #     f'< {line}\n' for line in request_data.splitlines()
+        # ))
 
-        self.parse_request()
+        # self.parse_request()
 
         # Construct environment dictionary using request data
         env = self.get_environ()
 
         # It's time to call our application callable and get
         # back a result that will become HTTP response body
+
+        self.application = self.get_app()
         result = self.application(env, self.start_response)
 
         # Construct a response and send it back to the client
@@ -76,17 +87,18 @@ class AsyncWSGIRequestHandler(httpd.AsyncHTTPRequestHandler):
                 f'> {line}\n' for line in response.splitlines()
             ))
             response_bytes = response.encode()
-            self.client_connection.sendall(response_bytes)
-        finally:
-            self.client_connection.close()
+            self.send(response_bytes)
+        except:
+            pass
 
 
-address_family = socket.AF_INET
-socket_type = socket.SOCK_STREAM
-request_queue_size = 1
-       
-args = httpd.parse_args()
-SERVER_ADDRESS = (HOST, PORT) = args.host, args.port
+# address_family = socket.AF_INET
+# socket_type = socket.SOCK_STREAM
+# request_queue_size = 1
+
+# args = httpd.parse_args()
+# SERVER_ADDRESS = (HOST, PORT) = args.host, args.port
+SERVER_ADDRESS = (HOST, PORT) = 'localhost', 9000
 
 
 def make_server(server_address, application):
@@ -97,7 +109,7 @@ def make_server(server_address, application):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        sys.exit('Provide a WSGI application object as module:callable')
+        sys.exit(f'Provide a WSGI application object as module:callable {sys.argv}')
     app_path = sys.argv[1]
     module, application = app_path.split(':')
     module = __import__(module)

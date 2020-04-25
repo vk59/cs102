@@ -91,7 +91,8 @@ class AsyncHTTPRequestHandler(asynchat.async_chat):
         self.content_len = 0
         self.file_type = ""
         self.path = ""
-        self.server_name = "My Server 47.01"
+        self.server_name = "localhost"
+        self.port = 9000
 
     def collect_incoming_data(self, data):
         self.data = data.decode()
