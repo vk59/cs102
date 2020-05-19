@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'notes',
     'accounts',
+    'django_wysiwyg',
     'widget_tweaks',
 ]
 
@@ -130,3 +131,5 @@ STATICFILES_DIRS = [
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = '/'
+
+DJANGO_WYSIWYG_FLAVOR = 'ckeditor'
