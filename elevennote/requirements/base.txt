@@ -6,7 +6,7 @@ certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
 cryptography==2.9.2
-Django==3.0.6
+Django==2.0.1
 docker==4.2.0
 docker-compose==1.25.5
 dockerpty==0.4.1
@@ -27,10 +27,12 @@ six==1.14.0
 sqlparse==0.3.1
 texttable==1.6.2
 urllib3==1.25.9
-uWSGI==2.0.18
+uWSGI==2.0.15
 websocket-client==0.57.0
 django-wysiwyg==0.8.0
 django-widget-tweaks==1.4.8
 django-wysiwyg==0.8.0
 djangorestframework==3.8.2
 djangorestframework-jwt==1.11.0
+django-social-share
+html2text

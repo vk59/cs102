@@ -4,6 +4,8 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView
 )
 
+from django.urls import reverse
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Note
@@ -25,7 +27,11 @@ class NoteList(LoginRequiredMixin, ListView):
         return super(NoteList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Note.objects.filter(owner=self.request.user).order_by('-pub_date')
+        return Note.objects.filter(
+            owner=self.request.user,
+            tags__contains=self.request.GET.get('filter_tag', ''),
+            title__contains=self.request.GET.get('filter_name','')
+        ).order_by('-pub_date')
 
 
 class NoteDetail(LoginRequiredMixin, DetailView):
