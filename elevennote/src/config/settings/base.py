@@ -144,3 +144,10 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = '/'
 
 DJANGO_WYSIWYG_FLAVOR = 'ckeditor'
+
+"""Confirmation email settings """
+EMAIL_HOST = config('EMAIL_SENDER_HOST')
+EMAIL_PORT = config('EMAIL_SENDER_PORT')
+EMAIL_HOST_USER = config('EMAIL_SENDER')
+EMAIL_HOST_PASSWORD = config('EMAIL_SENDER_PASSWORD')
+EMAIL_USE_TLS = True

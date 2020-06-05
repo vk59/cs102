@@ -44,7 +44,8 @@ class NoteDetail(LoginRequiredMixin, DetailView):
         return super(NoteDetail, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Note.objects.filter(owner=self.request.user)
+        return Note.objects.filter(access=self.request.user)
+
 
 class NoteCreate(LoginRequiredMixin, NoteMixin, CreateView):
     form_class = NoteForm
@@ -55,6 +56,7 @@ class NoteCreate(LoginRequiredMixin, NoteMixin, CreateView):
         form.instance.owner = self.request.user
         form.instance.pub_date = timezone.now()
         return super(NoteCreate, self).form_valid(form)
+
 
 class NoteUpdate(LoginRequiredMixin, NoteMixin, UpdateView):
     model = Note
@@ -68,6 +70,7 @@ class NoteUpdate(LoginRequiredMixin, NoteMixin, UpdateView):
         return reverse('notes:update', kwargs={
             'pk': self.object.pk
         })
+
 
 class NoteDelete(LoginRequiredMixin, DeleteView):
     model = Note
