@@ -1,6 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if request.GET.msg %}
+
+<div class="row">
+  <div class=" alert alert-success" role="alert">
+    {{ request.GET.msg }}
+  </div>
+</div>
+
+{% endif %}
+
+{% if request.GET.filter_title %}
+    <row>
+      <h4>Resulst of search '{{request.GET.filter_title}}'</h4>
+    </row>
+{% endif %}
+
+<div class="row">
+    <form action="{% url 'notes:index' %}"class="form-inline" method="GET">
+      <input name="filter_title" class="form-control" type="search" placeholder="Search by note's title" aria-label="Search">
+      <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+</div>
+
 {% if latest_note_list %}
     <ul>
     {% for note in latest_note_list %}

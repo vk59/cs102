@@ -22,12 +22,14 @@ class NoteList(LoginRequiredMixin, ListView):
     template_name = 'notes/index.html'
     context_object_name = 'latest_note_list'
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(NoteList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Note.objects.filter(access__contains=self.request.user).order_by('-pub_date')
+        if "filter_title" in self.request.GET.keys():
+            return Note.objects.filter(title__contains=self.request.GET['filter_title']).order_by('-pub_date')
+        else:
+            return Note.objects.filter(access__contains=self.request.user).order_by('-pub_date')
 
 
 class NoteDetail(LoginRequiredMixin, DetailView):
@@ -35,7 +37,6 @@ class NoteDetail(LoginRequiredMixin, DetailView):
     template_name = 'notes/detail.html'
     context_object_name = 'note'
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(NoteDetail, self).dispatch(*args, **kwargs)
 
