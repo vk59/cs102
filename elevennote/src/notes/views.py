@@ -27,11 +27,7 @@ class NoteList(LoginRequiredMixin, ListView):
         return super(NoteList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Note.objects.filter(
-            owner=self.request.user,
-            tags__contains=self.request.GET.get('filter_tag', ''),
-            title__contains=self.request.GET.get('filter_name','')
-        ).order_by('-pub_date')
+        return Note.objects.filter(access__contains=self.request.user).order_by('-pub_date')
 
 
 class NoteDetail(LoginRequiredMixin, DetailView):
@@ -44,7 +40,7 @@ class NoteDetail(LoginRequiredMixin, DetailView):
         return super(NoteDetail, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Note.objects.filter(access=self.request.user)
+        return Note.objects.filter(access__contains=self.request.user)
 
 
 class NoteCreate(LoginRequiredMixin, NoteMixin, CreateView):
@@ -55,6 +51,9 @@ class NoteCreate(LoginRequiredMixin, NoteMixin, CreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         form.instance.pub_date = timezone.now()
+        if str(self.request.user) not in form.instance.access:
+            form.instance.access += ' '
+            form.instance.access += str(self.request.user)
         return super(NoteCreate, self).form_valid(form)
 
 
@@ -64,12 +63,18 @@ class NoteUpdate(LoginRequiredMixin, NoteMixin, UpdateView):
     template_name = 'notes/form.html'
 
     def get_queryset(self):
-        return Note.objects.filter(owner=self.request.user)
+        return Note.objects.filter(access__contains=self.request.user)
 
     def get_success_url(self):
         return reverse('notes:update', kwargs={
             'pk': self.object.pk
         })
+
+    def form_valid(self, form):
+        if str(self.request.user) not in form.instance.access:
+            form.instance.access += ' '
+            form.instance.access += str(self.request.user)
+        return super(NoteUpdate, self).form_valid(form)
 
 
 class NoteDelete(LoginRequiredMixin, DeleteView):
