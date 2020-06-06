@@ -61,6 +61,7 @@
             {% endfor %}
             <input type="hidden" name="next" value="{{ next }}" />
 
+        <div class="row">
         {% if object %}
             <input class="btn btn-outline-dark" type="submit" value="Update Note"/>
         {% else %}
@@ -76,7 +77,7 @@
                </button>
            </form>
         {% endif %}
-
+        </div>
         </div>
     </div>
 

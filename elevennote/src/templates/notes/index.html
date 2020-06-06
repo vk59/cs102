@@ -13,9 +13,14 @@
 {% endif %}
 
 {% if request.GET.filter_title %}
-    <row>
+    <div class="row">
       <h4>Resulst of search '{{request.GET.filter_title}}'</h4>
-    </row>
+    </div>
+
+{% elif request.GET.filter_tag %}
+  <div class="row">
+      <h4>Notes with tag: {{request.GET.filter_tag}}</h4>
+  </div>
 {% endif %}
 
 <div class="row">
@@ -29,11 +34,20 @@
     <ul>
     {% for note in latest_note_list %}
 	<p>
-   		<a href="{% url 'notes:update' note.id %}">{{ note.title }}</a><br/>
-   		{{ note.body | safe }}
-   		{{ note.tags}}
-	</p>
-	<hr />
+    <div class='row'>
+      {% for tag in note.tags_as_list %}
+      <form action="{% url 'notes:index' %}" method="GET">
+          <input class="btn btn-outline-dark" name="filter_tag" type="submit" value="{{tag}}"/>
+      </form>
+      {% endfor %}
+    </div>
+
+    <li><p><a href="{% url 'notes:detail' note.id %}">{{ note.title }}</a></p></li>
+      <a href="{% url 'notes:update' note.id %}">Edit</a><br/>
+      <p>{{ note.body | safe }} </p>
+   		{{ note.tags }}
+  	</p>
+  	<hr />
     {% endfor %}
     </ul>
 {% else %}

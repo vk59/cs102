@@ -27,3 +27,6 @@ class Note(models.Model):
     def was_published_recently(self):
         now = timezone.now()
         return now - timezone.timedelta(days=1) <= self.pub_date <= now
+
+    def tags_as_list(self):
+        return self.tags.split(',')

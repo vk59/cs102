@@ -28,6 +28,11 @@ class NoteList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         if "filter_title" in self.request.GET.keys():
             return Note.objects.filter(title__contains=self.request.GET['filter_title']).order_by('-pub_date')
+        elif "filter_tag" in self.request.GET.keys():
+            tags = self.request.GET['filter_tag']
+            while tags[0] == ' ':
+                tags = tags[1:]
+            return Note.objects.filter(tags__contains=tags).order_by('-pub_date')
         else:
             return Note.objects.filter(access__contains=self.request.user).order_by('-pub_date')
 
