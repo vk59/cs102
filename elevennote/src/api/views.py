@@ -4,18 +4,19 @@ from notes.models import Note
 from accounts.models import User
 from .serializers import NoteSerializer, UserSerializer
 
-from django.http import JsonResponse
-from rest_framework import viewsets, status
-from django.core import serializers
-
 
 class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
     queryset = Note.objects.all()
 
-    # def filter_queryset(self, queryset):
-    #     queryset = Note.objects.filter(owner=self.request.user)
-    #     return queryset
+    def get_queryset(self):
+        if self.request.query_params.get('title', None):
+            title = self.request.query_params.get('title', None)
+            self.queryset = self.queryset.filter(title__contains=title)
+        elif self.request.query_params.get('tag', None):
+            tag = self.request.query_params.get('tag', None)
+            self.queryset = self.queryset.filter(tags__contains=tag)
+        return self.queryset
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -28,16 +29,3 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
         serializer.save()
-
-
-def filter_note(request, name):
-    if request.method == "GET":
-        notes = Note.objects.filter(
-            tags__contains=name
-        )
-
-        notes |= Note.objects.filter(
-            title__contains=name
-        )
-
-        return JsonResponse(serializers.serialize('json', list(notes)), safe=False,)
